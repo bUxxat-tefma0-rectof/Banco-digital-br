@@ -3,389 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banco INTERIS - Super App Financeiro 2025</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>BANCO CARD - Seu Banco Digital</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script> <!-- Para QR Pix -->
 </head>
-<body class="bg-light">
-    <!-- Tela de Login/Abertura -->
-    <div id="login-screen" class="container-fluid d-flex justify-content-center align-items-center min-vh-100">
-        <div class="login-card card shadow">
-            <div class="card-body text-center p-4">
-                <img src="img/logo.svg" alt="INTERIS Logo" width="80" class="mb-3">
-                <h2 class="text-purple mb-4">Bem-vindo ao INTERIS</h2>
-                <button class="btn btn-purple w-100 mb-3" onclick="abrirAbertura()">Abrir Conta Gratuita</button>
-                <form id="login-form">
-                    <div class="mb-3">
-                        <input type="text" class="form-control" placeholder="CPF ou E-mail" required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="password" class="form-control" placeholder="Senha" required>
-                    </div>
-                    <button type="submit" class="btn btn-purple w-100">Acessar</button>
-                    <div class="mt-3">
-                        <small><a href="#" class="text-purple" onclick="abrirModal2FA()">2FA ou Biometria</a> | <a href="#" class="text-purple">Esqueceu Senha?</a></small>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+<body>
+    <!-- Header com hora e sinal -->
+    <header class="header">
+        <div class="time">20:34 <span>●</span></div>
+        <div class="signal">●●●○ ■</div>
+    </header>
 
-    <!-- Dashboard (d-none) -->
-    <div id="dashboard-screen" class="d-none">
-        <!-- Navbar Superior -->
-        <nav class="navbar navbar-light bg-white shadow-sm">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#"><img src="img/logo.svg" width="40"> INTERIS</a>
-                <div class="d-flex">
-                    <button class="btn btn-outline-purple me-2" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
-                    <button class="btn btn-purple" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
-                </div>
-            </div>
-        </nav>
+    <!-- Navegação inferior -->
+    <nav class="bottom-nav">
+        <a href="#inicio" class="nav-item active">
+            <svg>🏠</svg> Início
+        </a>
+        <a href="#invest" class="nav-item">
+            <svg>📈</svg> Invest
+        </a>
+        <a href="#forum" class="nav-item">
+            <svg>💬</svg> Fórum
+        </a>
+        <a href="#shop" class="nav-item">
+            <svg>🛒</svg> Shop
+        </a>
+        <a href="#todos" class="nav-item">
+            <svg>⋯</svg> Todos
+        </a>
+    </nav>
 
-        <!-- Conteúdo -->
-        <div class="container-fluid mt-3 px-3">
-            <!-- Saldo e Resumo (Tempo Real) -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card bg-white shadow">
-                        <div class="card-body">
-                            <h3 class="text-purple">Saldo Disponível <i class="fas fa-sync-alt" onclick="atualizarTempoReal()"></i></h3>
-                            <h1 id="saldo">R$ 5.432,78</h1>
-                            <div class="d-flex justify-content-around mt-3">
-                                <div class="text-center"><p class="mb-0">Entradas</p><p class="text-success" id="entradas">R$ 12.000,00</p></div>
-                                <div class="text-center"><p class="mb-0">Saídas</p><p class="text-danger" id="saidas">R$ 6.567,22</p></div>
-                                <div class="text-center"><p class="mb-0">Limite Cartão</p><p class="text-purple">R$ 10.000,00</p></div>
-                            </div>
-                            <button class="btn btn-outline-purple mt-2" onclick="abrirModalExtrato()">Ver Extrato Completo</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Conteúdo principal - Use JS para trocar seções -->
+    <main id="app">
+        <!-- Seção Abertura de Conta (inicial) -->
+        <section id="abertura" class="screen active">
+            <div class="logo">🏦 BANCO CARD</div>
+            <h1>Boas-vindas ao BANCO CARD e a uma vida financeira mais inteligente!</h1>
+            <form id="form-abertura">
+                <label>Qual informação você quer usar?</label>
+                <select id="info-type">
+                    <option>CPF</option>
+                    <option>Celular</option>
+                    <option>E-mail</option>
+                    <option>Conta</option>
+                </select>
+                <input type="text" id="cpf-input" placeholder="Digite apenas números (CPF)" maxlength="11">
+                <button type="button" onclick="validarCPF()">Continuar</button>
+                <p>Abrir conta completa e gratuita</p>
+            </form>
+            <div id="resultado-cpf"></div>
+        </section>
 
-            <!-- Botões Rápidos -->
-            <div class="row mb-3">
-                <div class="col-6"><button class="btn btn-purple w-100" onclick="abrirModalPIX()"><i class="fas fa-qrcode"></i> PIX</button></div>
-                <div class="col-6"><button class="btn btn-purple w-100" onclick="abrirModalTransferencia()"><i class="fas fa-exchange-alt"></i> Transferir</button></div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-6"><button class="btn btn-purple w-100" onclick="abrirModalPagamento()"><i class="fas fa-receipt"></i> Pagar Boleto</button></div>
-                <div class="col-6"><button class="btn btn-purple w-100" onclick="abrirModalCartao()"><i class="fas fa-credit-card"></i> Cartão</button></div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-6"><button class="btn btn-purple w-100" onclick="abrirModalInvestimentos()"><i class="fas fa-chart-line"></i> Investir</button></div>
-                <div class="col-6"><button class="btn btn-purple w-100" onclick="abrirModalSeguros()"><i class="fas fa-shield-alt"></i> Seguros</button></div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-6"><button class="btn btn-purple w-100" onclick="abrirModalCashback()"><i class="fas fa-gift"></i> Cashback R$156,20</button></div>
-                <div class="col-6"><button class="btn btn-purple w-100" onclick="abrirModalRecarga()"><i class="fas fa-mobile-alt"></i> Recarga Celular</button></div>
-            </div>
+        <!-- Seção Dados Pessoais -->
+        <section id="dados-pessoais" class="screen">
+            <h2>Nome de quem vai usar a conta</h2>
+            <input type="text" id="nome" placeholder="Digite seu nome completo">
+            <h2>Data de nascimento</h2>
+            <input type="date" id="nascimento" onchange="verificarIdade()">
+            <p id="idade-info"></p>
+            <button onclick="proximaEtapa()">Continuar</button>
+        </section>
 
-            <!-- Extrato Recente (Tempo Real) -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h5 class="text-purple">Extrato Recente <span class="badge bg-purple">Atualizado agora</span></h5>
-                    <div id="extrato-lista" class="list-group">
-                        <!-- Itens dinâmicos -->
-                    </div>
-                    <button class="btn btn-outline-purple w-100 mt-2" onclick="gerarPDFExtrato()">Baixar PDF</button>
+        <!-- Seção Documento e Foto -->
+        <section id="documento" class="screen">
+            <h2>Escolha o documento</h2>
+            <select id="doc-type">
+                <option>RG</option>
+                <option>CNH</option>
+                <option>RNE</option>
+            </select>
+            <input type="file" id="foto-doc" accept="image/*" multiple> <!-- Frente e verso -->
+            <h2>Tire uma selfie</h2>
+            <video id="video" width="300" height="200" autoplay></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+            <button onclick="tirarSelfie()">Tirar Foto</button>
+            <input type="file" id="selfie-input" accept="image/*">
+            <button onclick="verificarIdentidade()">Verificar Identidade</button>
+            <p id="verificacao-result"></p>
+        </section>
+
+        <!-- Seção Início (após abertura) -->
+        <section id="inicio" class="screen">
+            <div class="search-bar">
+                <input type="search" placeholder="Pesquisar">
+            </div>
+            <div class="quick-access">
+                <h3>Acesso Rápido</h3>
+                <div class="grid">
+                    <div class="card">💳 Recargas</div>
+                    <div class="card">🐷 Meu Porquinho</div>
+                    <div class="card">🏦 Poupança</div>
+                    <div class="card">🎁 Gift Card</div>
                 </div>
             </div>
-
-            <!-- Ofertas Inter Shop -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h5 class="text-purple">Ofertas Exclusivas</h5>
-                    <div class="card bg-white shadow">
-                        <div class="card-body">
-                            <p>10% OFF em eletrônicos na Amazon com cashback!</p>
-                            <button class="btn btn-purple">Ver Ofertas</button>
-                        </div>
-                    </div>
+            <div class="outros">
+                <h3>Outros Produtos</h3>
+                <div class="grid">
+                    <div class="card">💳 Maquininhas</div>
+                    <div class="card">🏷️ Tag</div>
+                    <div class="card">👨‍👧 Conta Kids</div>
                 </div>
             </div>
-        </div>
-
-        <!-- Navbar Inferior -->
-        <nav class="navbar fixed-bottom navbar-light bg-white border-top">
-            <div class="container-fluid justify-content-around px-0">
-                <a class="nav-link text-center text-purple p-2" href="#"><i class="fas fa-home"></i><br>Home</a>
-                <a class="nav-link text-center text-purple p-2" href="#" onclick="abrirModalExtrato()"><i class="fas fa-list"></i><br>Extrato</a>
-                <a class="nav-link text-center text-purple p-2" href="#" onclick="abrirModalPIX()"><i class="fas fa-qrcode"></i><br>PIX</a>
-                <a class="nav-link text-center text-purple p-2" href="#" onclick="abrirModalSuporte()"><i class="fas fa-headset"></i><br>Suporte</a>
-                <a class="nav-link text-center text-purple p-2" href="#"><i class="fas fa-ellipsis-h"></i><br>Mais</a>
-            </div>
-        </nav>
-    </div>
-
-    <!-- Modal Abertura de Conta (Nova Tela Completa) -->
-    <div class="modal fade" id="aberturaModal" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-purple">Abrir Conta INTERIS Gratuita</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="abertura-form">
-                        <div class="mb-3">
-                            <label>CPF</label>
-                            <input type="text" class="form-control" placeholder="000.000.000-00" required>
-                        </div>
-                        <div class="mb-3">
-                            <label>Nome Completo</label>
-                            <input type="text" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label>Data de Nascimento</label>
-                            <input type="date" class="form-control" id="data-nasc" required onchange="verificarIdade()">
-                        </div>
-                        <div id="kids-section" class="d-none">
-                            <h6>Conta INTERIS Kids (Menor de 18)</h6>
-                            <div class="mb-3">
-                                <label>CPF do Responsável</label>
-                                <input type="text" class="form-control" placeholder="000.000.000-00" required>
-                            </div>
-                            <div class="mb-3">
-                                <label>Documento Responsável (RG/CNH)</label>
-                                <input type="file" class="form-control" accept="image/*" required>
-                            </div>
-                            <p class="text-muted">Limites: Sem crédito, transferências ilimitadas gratuitas.</p>
-                        </div>
-                        <div class="mb-3">
-                            <label>E-mail e Celular</label>
-                            <input type="email" class="form-control mb-2" placeholder="email@exemplo.com" required>
-                            <input type="tel" class="form-control" placeholder="(11) 99999-9999" required>
-                        </div>
-                        <div class="mb-3">
-                            <label>Selfie para Verificação</label>
-                            <input type="file" class="form-control" accept="image/*" id="selfie" required>
-                            <button type="button" class="btn btn-outline-purple mt-2" onclick="simularBiometria()">Verificar Identidade (Biometria)</button>
-                            <div id="verificacao-status" class="mt-2"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label>Endereço</label>
-                            <input type="text" class="form-control" placeholder="Rua, Número, Cidade" required>
-                        </div>
-                        <div class="mb-3">
-                            <label>Tipo de Conta</label>
-                            <select class="form-select" required>
-                                <option value="">Selecione</option>
-                                <option value="pf">PF (Pessoa Física)</option>
-                                <option value="pj">PJ (Pessoa Jurídica)</option>
-                                <option value="kids">Kids (Menor 18)</option>
-                                <option value="you">You (Jovem 18-24)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-purple w-100">Finalizar Abertura (Análise em Tempo Real)</button>
-                    </form>
-                    <div id="abertura-resultado" class="mt-3 d-none">
-                        <div class="alert alert-success">Conta aprovada! Aguarde SMS de confirmação.</div>
-                    </div>
+            <div class="explorar">
+                <h3>Explorar Produtos</h3>
+                <div class="list">
+                    <div class="item">🤝 Empréstimos e Financiamentos ></div>
+                    <div class="item">☂️ Seguros, Consórcios e Saúde ></div>
+                    <div class="item">🏛️ Transações ></div>
+                    <div class="item">💳 Cartões ></div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Modais Expandidos (PIX, Transferência, etc.) -->
-    <div class="modal fade" id="pixModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-purple">PIX Instantâneo <i class="fas fa-shield-alt text-success"></i></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="text" class="form-control mb-2" placeholder="Chave PIX (CPF/Email/Telefone/Chave Aleatória)">
-                    <input type="number" class="form-control mb-2" placeholder="Valor (R$)" step="0.01" id="pix-valor">
-                    <div class="alert alert-warning">Verificação Antifraude: Confirme se é conhecido.</div>
-                    <button class="btn btn-purple w-100" onclick="confirmarPIX()"><i class="fas fa-paper-plane"></i> Enviar (Grátis)</button>
-                    <p class="text-muted">Limite diário: R$5.000 | Nota A no BC (2025)</p>
+            <!-- Saldo -->
+            <div class="saldo">
+                <h2>Saldo: R$ 0,01</h2>
+                <div class="buttons">
+                    <button>PIX</button>
+                    <button>Pagar</button>
+                    <button>Cartões</button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Modal Transferência -->
-    <div class="modal fade" id="transferenciaModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-purple">Transferir (TED/DOC Grátis)</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="text" class="form-control mb-2" placeholder="Agência/Banco/Conta">
-                    <input type="number" class="form-control mb-2" placeholder="Valor (R$)" step="0.01">
-                    <button class="btn btn-purple w-100" onclick="confirmarTransferencia()">Transferir em Tempo Real</button>
-                </div>
+            <!-- Pix Demo -->
+            <div id="pix-section">
+                <h3>Pix</h3>
+                <input type="text" id="pix-chave" placeholder="Chave Pix">
+                <button onclick="gerarPix()">Gerar QR Code</button>
+                <div id="qrcode"></div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- Modal Pagamento -->
-    <div class="modal fade" id="pagamentoModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-purple">Pagar Boleto/Cartão</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="file" class="form-control mb-2" accept=".pdf,image/*" placeholder="Upload Boleto">
-                    <input type="number" class="form-control mb-2" placeholder="Valor (R$)" step="0.01">
-                    <button class="btn btn-purple w-100" onclick="confirmarPagamento()">Pagar Agora</button>
-                </div>
+        <!-- Seção Investimentos -->
+        <section id="invest" class="screen">
+            <h1>Investimentos</h1>
+            <div class="total">🇧🇷 Total Investido: R$ -</div>
+            <button>Investir</button>
+            <button>Resgatar</button>
+            <div class="cards">
+                <div class="invest-card">LCI 92% do CDI</div>
+                <div class="invest-card">CDB 100% do CDI</div>
             </div>
-        </div>
-    </div>
+            <div class="porquinho">Meu Porquinho 100% do CDI 🐷</div>
+        </section>
 
-    <!-- Modal Cartão -->
-    <div class="modal fade" id="cartaoModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-purple">Cartão INTERIS (Débito/Crédito/Virtual)</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Limite: R$10.000 | Cashback 1% em todas compras</p>
-                    <button class="btn btn-purple" onclick="gerarCartaoVirtual()">Gerar Cartão Virtual</button>
-                    <button class="btn btn-outline-purple" onclick="verificarFatura()">Ver Fatura</button>
-                    <div id="cartao-dados" class="mt-3 d-none">
-                        <p class="text-center">**** **** **** 1234 | Validade 12/28 | CVV 123</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        <!-- Outras seções mockadas -->
+        <section id="forum" class="screen"><h1>Fórum - Discuta finanças</h1></section>
+        <section id="shop" class="screen"><h1>Shop - Compre com cashback</h1></section>
+        <section id="todos" class="screen"><h1>Todos os Produtos</h1></section>
+    </main>
 
-    <!-- Modal Investimentos -->
-    <div class="modal fade" id="investimentosModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-purple">Investimentos (Tempo Real 2025)</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="cotações" class="mb-3">
-                        <p>CDB: 12% a.a. | Ações PETR4: R$35,50 (+2%)</p>
-                    </div>
-                    <input type="number" class="form-control mb-2" placeholder="Valor para Investir (R$)" step="0.01">
-                    <button class="btn btn-purple w-100" onclick="investirAgora()">Aplicar Agora</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Seguros -->
-    <div class="modal fade" id="segurosModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-purple">Seguros (Vida/Auto)</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Cotar Vida: R$29,90/mês | Auto: R$89/mês</p>
-                    <button class="btn btn-purple w-100" onclick="cotarSeguro()">Cotar Online</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Cashback -->
-    <div class="modal fade" id="cashbackModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-purple">Cashback Disponível</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h4>R$156,20</h4>
-                    <button class="btn btn-purple w-100" onclick="resgatarCashback()">Resgatar em Compras</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Recarga Celular -->
-    <div class="modal fade" id="recargaModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-purple">Recarga Celular</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="tel" class="form-control mb-2" placeholder="Número">
-                    <input type="number" class="form-control mb-2" placeholder="Valor (R$)" step="0.01">
-                    <button class="btn btn-purple w-100" onclick="fazerRecarga()">Recarregar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Extrato -->
-    <div class="modal fade" id="extratoModal">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-purple">Extrato Detalhado</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <ul id="extrato-detalhado" class="list-group">
-                        <!-- Dinâmico -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Suporte (Chat + FAQ) -->
-    <div class="modal fade" id="suporteModal">
-        <div class="modal-dialog modal-fullscreen">
-            <div class="modal-content h-100">
-                <div class="modal-header">
-                    <h5 class="text-purple">Suporte 24/7 <i class="fas fa-robot"></i></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body d-flex flex-column">
-                    <div id="chat-messages" class="flex-grow-1 p-3 overflow-auto bg-light"></div>
-                    <div class="p-3 border-top">
-                        <input type="text" id="chat-input" class="form-control" placeholder="Pergunte sobre PIX, investimentos...">
-                        <button class="btn btn-purple mt-2 w-100" onclick="enviarMensagem()">Enviar</button>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <a href="tel:+5540004321" class="btn btn-outline-purple">Ligar Gratuito</a>
-                    <button class="btn btn-outline-purple" onclick="mostrarFAQ()">FAQ</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal 2FA -->
-    <div class="modal fade" id="2faModal">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-body text-center">
-                    <i class="fas fa-shield-alt fa-3x text-purple mb-3"></i>
-                    <p>Digite o código SMS:</p>
-                    <input type="text" class="form-control text-center" maxlength="6">
-                    <button class="btn btn-purple mt-2">Confirmar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
