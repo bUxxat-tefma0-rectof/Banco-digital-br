@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbearia Digital Pro - Sistema Completo</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- FullCalendar -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- MercadoPago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f3460;
+            --gold: #e94560;
+            --light: #f5f5f5;
+            --dark: #121212;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        /* Navbar */
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--gold) !important;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            margin: 0 8px;
+        }
+        
+        .nav-link:hover {
+            color: var(--gold) !important;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.9)),
+                        url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=1474&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        /* Calendar */
+        #calendar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        /* Admin Panel */
+        .admin-sidebar {
+            background: var(--primary);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .admin-content {
+            margin-left: 250px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        
+        /* Chat AI */
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 20px;
+            border-radius: 20px;
+            max-width: 70%;
+        }
+        
+        .user-message {
+            background: var(--accent);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .ai-message {
+            background: var(--light);
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+        
+        /* Services */
+        .service-card {
+            border-left: 5px solid var(--gold);
+            transition: all 0.3s;
+        }
+        
+        .service-card:hover {
+            border-left-color: var(--accent);
+        }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .admin-content {
+                margin-left: 0;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Status badges */
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-completed {
+            background: #cce5ff;
+            color: #004085;
+        }
+    </style>
+</head>
+<body>
+    <!-- Firebase Configuration -->
+    <script>
+        // Configuração do Firebase - VOCÊ PRECISA SUBSTITUIR COM SUAS CREDENCIAIS
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY_AQUI",
+            authDomain: "SEU_PROJETO.firebaseapp.com",
+            projectId: "SEU_PROJETO_ID",
+            storageBucket: "SEU_PROJETO.appspot.com",
+            messagingSenderId: "SEU_SENDER_ID",
+            appId: "SEU_APP_ID"
+        };
+        
+        // Inicializar Firebase
+        if (firebaseConfig.apiKey !== "SUA_API_KEY_AQUI") {
+            firebase.initializeApp(firebaseConfig);
+            
+            // Inicializar serviços
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            const storage = firebase.storage();
+            
+            // Verificar estado da autenticação
+            let currentUser = null;
+            let isAdmin = false;
+            
+            auth.onAuthStateChanged((user) => {
+                currentUser = user;
+                if (user) {
+                    // Verificar se é admin
+                    db.collection('users').doc(user.uid).get().then(doc => {
+                        if (doc.exists) {
+                            isAdmin = doc.data().isAdmin || false;
+                            updateUIForUser(user, isAdmin);
+                        }
+                    });
+                } else {
+                    updateUIForUser(null, false);
+                }
+            });
+        }
+        
+        // Mercado Pago Configuration
+        const mp = new MercadoPago('SUA_PUBLIC_KEY_MP', {
+            locale: 'pt-BR'
+        });
+        
+        // Configurações do sistema
+        let SYSTEM_SETTINGS = {
+            businessName: "Barbearia Digital Pro",
+            businessAddress: "Av. Paulista, 1000 - São Paulo, SP",
+            businessPhone: "(11) 9999-9999",
+            businessEmail: "contato@barbeariadigital.com",
+            businessHours: {
+                monday: { open: "09:00", close: "19:00" },
+                tuesday: { open: "09:00", close: "19:00" },
+                wednesday: { open: "09:00", close: "19:00" },
+                thursday: { open: "09:00", close: "19:00" },
+                friday: { open: "09:00", close: "20:00" },
+                saturday: { open: "10:00", close: "18:00" },
+                sunday: { open: "11:00", close: "16:00" }
+            },
+            services: [],
+            barbers: [],
+            aiChatEnabled: true,
+            paymentMethods: ['credit_card', 'pix', 'boleto'],
+            taxRate: 0.10 // 10%
+        };
+        
+        // Estado do sistema
+        let currentView = 'home';
+        let appointments = [];
+        let services = [];
+        let barbers = [];
+        let customers = [];
+        let payments = [];
+        let finances = [];
+        let chatHistory = [];
+        
+        // Atualizar UI baseado no usuário
+        function updateUIForUser(user, admin) {
+            const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const adminBtn = document.getElementById('adminBtn');
+            const userMenu = document.getElementById('userMenu');
+            
+            if (user) {
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                userMenu.style.display = 'block';
+                document.getElementById('userName').textContent = user.displayName || user.email;
+                
+                if (admin) {
+                    adminBtn.style.display = 'block';
+                } else {
+                    adminBtn.style.display = 'none';
+                }
+                
+                loadUserData(user.uid);
+            } else {
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                userMenu.style.display = 'none';
+                adminBtn.style.display = 'none';
+            }
+            
+            // Atualizar view atual
+            showView(currentView);
+        }
+        
+        // Carregar dados do usuário
+        function loadUserData(userId) {
+            if (typeof db !== 'undefined') {
+                // Carregar agendamentos do usuário
+                db.collection('appointments')
+                    .where('userId', '==', userId)
+                    .orderBy('date', 'desc')
+                    .limit(10)
+                    .get()
+                    .then(snapshot => {
+                        appointments = [];
+                        snapshot.forEach(doc => {
+                            appointments.push({ id: doc.id, ...doc.data() });
+                        });
+                        
+                        if (currentView === 'myAppointments') {
+                            displayMyAppointments();
+                        }
+                    });
+            }
+        }
+        
+        // Mostrar diferentes views
+        function showView(view) {
+            currentView = view;
+            
+            // Esconder todas as views
+            document.querySelectorAll('.view').forEach(v => {
+                v.style.display = 'none';
+            });
+            
+            // Mostrar view solicitada
+            document.getElementById(view + 'View').style.display = 'block';
+            
+            // Atualizar navbar
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('onclick') === `showView('${view}')`) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Carregar dados específicos da view
+            switch(view) {
+                case 'home':
+                    loadHomeData();
+                    break;
+                case 'services':
+                    loadServices();
+                    break;
+                case 'schedule':
+                    initializeCalendar();
+                    break;
+                case 'myAppointments':
+                    displayMyAppointments();
+                    break;
+                case 'admin':
+                    checkAdminAccess();
+                    break;
+                case 'chat':
+                    initializeChat();
+                    break;
+            }
+        }
+        
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar event listeners
+            setupEventListeners();
+            
+            // Carregar configurações iniciais
+            loadSystemSettings();
+            
+            // Mostrar view inicial
+            showView('home');
+            
+            // Verificar se há dados no localStorage
+            checkLocalStorage();
+        });
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Login/Logout
+            document.getElementById('loginBtn').addEventListener('click', showLoginModal);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('adminBtn').addEventListener('click', () => showView('admin'));
+            
+            // Forms
+            document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
+            document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
+            document.getElementById('appointmentForm')?.addEventListener('submit', handleAppointment);
+            document.getElementById('adminLoginForm')?.addEventListener('submit', handleAdminLogin);
+            document.getElementById('chatForm')?.addEventListener('submit', handleChatMessage);
+            
+            // Modals
+            document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    bootstrap.Modal.getInstance(btn.closest('.modal')).hide();
+                });
+            });
+        }
+    </script>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#" onclick="showView('home')">
+                <i class="fas fa-cut"></i> Barbearia Pro
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showView('home')">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showView('services')">Serviços</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showView('schedule')">Agendar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showView('myAppointments')">Meus Agendamentos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showView('chat')">Chat AI</a>
+                    </li>
+                    <li class="nav-item" id="adminBtn" style="display: none;">
+                        <a class="nav-link text-warning" href="#" onclick="showView('admin')">
+                            <i class="fas fa-cog"></i> Admin
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex ms-3">
+                    <div id="userMenu" style="display: none;">
+                        <span class="navbar-text me-3" id="userName"></span>
+                    </div>
+                    <button class="btn btn-outline-light btn-sm me-2" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="logoutBtn" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-5 pt-4">
+        
+        <!-- Home View -->
+        <div id="homeView" class="view">
+            <!-- Hero Section -->
+            <div class="hero rounded-3 mb-4">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <h1 class="display-4 fw-bold">Barbearia Digital Pro</h1>
+                            <p class="lead">Corte, estilo e cuidado com a tecnologia mais avançada do mercado. Agende online e tenha uma experiência premium.</p>
+                            <div class="mt-4">
+                                <button class="btn btn-warning btn-lg me-3" onclick="showView('schedule')">
+                                    <i class="fas fa-calendar-plus"></i> Agendar Horário
+                                </button>
+                                <button class="btn btn-outline-light btn-lg" onclick="showView('services')">
+                                    <i class="fas fa-concierge-bell"></i> Ver Serviços
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 text-center">
+                            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                                 class="img-fluid rounded-3 shadow-lg" 
+                                 alt="Barbearia Moderna"
+                                 style="max-height: 400px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h3><i class="fas fa-calendar-check text-primary"></i></h3>
+                        <div class="stat-number" id="statsToday">0</div>
+                        <p class="text-muted">Agendamentos Hoje</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h3><i class="fas fa-users text-success"></i></h3>
+                        <div class="stat-number" id="statsBarbers">0</div>
+                        <p class="text-muted">Barbeiros Ativos</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h3><i class="fas fa-star text-warning"></i></h3>
+                        <div class="stat-number" id="statsRating">5.0</div>
+                        <p class="text-muted">Avaliação Média</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h3><i class="fas fa-clock text-info"></i></h3>
+                        <div class="stat-number" id="statsWaitTime">15</div>
+                        <p class="text-muted">Min. Espera Médio</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Preview -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-4">Nossos Serviços</h2>
+                    <div id="servicesPreview" class="row">
+                        <!-- Services loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barbers Preview -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-4">Nossa Equipe</h2>
+                    <div id="barbersPreview" class="row">
+                        <!-- Barbers loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services View -->
+        <div id="servicesView" class="view" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-4">Serviços Disponíveis</h2>
+                    <div id="servicesList" class="row">
+                        <!-- Services loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule View -->
+        <div id="scheduleView" class="view" style="display: none;">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h2 class="mb-4">Agendamento Online</h2>
+                    <div id="calendar"></div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Novo Agendamento</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="appointmentForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Serviço</label>
+                                    <select class="form-select" id="serviceSelect" required>
+                                        <option value="">Selecione um serviço</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Barbeiro</label>
+                                    <select class="form-select" id="barberSelect" required>
+                                        <option value="">Selecione um barbeiro</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Data e Hora</label>
+                                    <input type="datetime-local" class="form-control" id="appointmentDateTime" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Observações</label>
+                                    <textarea class="form-control" id="appointmentNotes" rows="3"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-calendar-check"></i> Confirmar Agendamento
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Appointments View -->
+        <div id="myAppointmentsView" class="view" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="mb-4">Meus Agendamentos</h2>
+                    <div id="appointmentsList">
+                        <!-- Appointments loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat AI View -->
+        <div id="chatView" class="view" style="display: none;">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h2 class="mb-4">Assistente Virtual da Barbearia</h2>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message ai-message">
+                                <strong><i class="fas fa-robot"></i> Assistente:</strong> Olá! Sou o assistente virtual da Barbearia Pro. Como posso ajudar você hoje? Posso ajudar com agendamentos, serviços, horários ou qualquer dúvida sobre nossa barbearia!
+                            </div>
+                        </div>
+                        <div class="p-3 border-top">
+                            <form id="chatForm">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="chatInput" 
+                                           placeholder="Digite sua mensagem..." required>
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin View -->
+        <div id="adminView" class="view" style="display: none;">
+            <!-- Admin access check will be performed -->
+            <div id="adminLoginPrompt" class="text-center py-5">
+                <div class="card mx-auto" style="max-width: 400px;">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Acesso Administrativo</h4>
+                        <form id="adminLoginForm">
+                            <div class="mb-3">
+                                <input type="password" class="form-control" id="adminPassword" 
+                                       placeholder="Senha Administrativa" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Acessar Painel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Dashboard (hidden by default) -->
+            <div id="adminDashboard" style="display: none;">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2><i class="fas fa-cog"></i> Painel Administrativo</h2>
+                        <p class="text-muted">Gerencie sua barbearia completamente</p>
+                    </div>
+                </div>
+
+                <!-- Admin Tabs -->
+                <ul class="nav nav-tabs mb-4" id="adminTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#tabDashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#tabAppointments">Agendamentos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#tabServices">Serviços</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#tabBarbers">Barbeiros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#tabFinances">Finanças</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#tabSettings">Configurações</a>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Dashboard Tab -->
+                    <div class="tab-pane fade show active" id="tabDashboard">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-number" id="adminTotalRevenue">R$ 0</div>
+                                    <p class="text-muted">Receita Total</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-number" id="adminTodayAppointments">0</div>
+                                    <p class="text-muted">Agendamentos Hoje</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-number" id="adminActiveCustomers">0</div>
+                                    <p class="text-muted">Clientes Ativos</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-number" id="adminCompletionRate">0%</div>
+                                    <p class="text-muted">Taxa de Conclusão</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Receita Mensal</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="revenueChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Status dos Agendamentos</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="appointmentsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appointments Tab -->
+                    <div class="tab-pane fade" id="tabAppointments">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Todos os Agendamentos</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Cliente</th>
+                                                <th>Serviço</th>
+                                                <th>Barbeiro</th>
+                                                <th>Data/Hora</th>
+                                                <th>Status</th>
+                                                <th>Valor</th>
+                                                <th>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="adminAppointmentsTable">
+                                            <!-- Appointments loaded dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Services Tab -->
+                    <div class="tab-pane fade" id="tabServices">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5>Gerenciar Serviços</h5>
+                                <button class="btn btn-sm btn-primary" onclick="showServiceModal()">
+                                    <i class="fas fa-plus"></i> Novo Serviço
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" id="adminServicesList">
+                                    <!-- Services loaded dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Barbers Tab -->
+                    <div class="tab-pane fade" id="tabBarbers">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5>Gerenciar Barbeiros</h5>
+                                <button class="btn btn-sm btn-primary" onclick="showBarberModal()">
+                                    <i class="fas fa-plus"></i> Novo Barbeiro
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" id="adminBarbersList">
+                                    <!-- Barbers loaded dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Finances Tab -->
+                    <div class="tab-pane fade" id="tabFinances">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Gestão Financeira</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5>Resumo do Mês</h5>
+                                                <div class="row mt-3">
+                                                    <div class="col-6">
+                                                        <p class="mb-1">Receita Total</p>
+                                                        <h4 id="monthlyRevenue">R$ 0</h4>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <p class="mb-1">Despesas</p>
+                                                        <h4 id="monthlyExpenses">R$ 0</h4>
+                                                    </div>
+                                                    <div class="col-12 mt-3">
+                                                        <p class="mb-1">Lucro Líquido</p>
+                                                        <h3 class="text-success" id="monthlyProfit">R$ 0</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5>Métodos de Pagamento</h5>
+                                                <canvas id="paymentMethodsChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Transações Recentes</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Data</th>
+                                                        <th>Cliente</th>
+                                                        <th>Serviço</th>
+                                                        <th>Método</th>
+                                                        <th>Status</th>
+                                                        <th>Valor</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="transactionsTable">
+                                                    <!-- Transactions loaded dynamically -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div class="tab-pane fade" id="tabSettings">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Configurações do Sistema</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="systemSettingsForm">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Nome da Barbearia</label>
+                                            <input type="text" class="form-control" id="settingBusinessName" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Telefone</label>
+                                            <input type="text" class="form-control" id="settingBusinessPhone" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Endereço</label>
+                                        <input type="text" class="form-control" id="settingBusinessAddress" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="settingBusinessEmail" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Horários de Funcionamento</label>
+                                        <div id="businessHoursSettings">
+                                            <!-- Hours loaded dynamically -->
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Taxa de Imposto (%)</label>
+                                        <input type="number" class="form-control" id="settingTaxRate" min="0" max="100" step="0.1" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-link" onclick="showRegisterModal()">Criar nova conta</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Criar Conta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nome Completo</label>
+                            <input type="text" class="form-control" id="registerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Telefone</label>
+                            <input type="tel" class="form-control" id="registerPhone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="registerPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirmar Senha</label>
+                            <input type="password" class="form-control" id="registerConfirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Criar Conta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Modal (Admin) -->
+    <div class="modal fade" id="serviceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Gerenciar Serviço</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="serviceForm">
+                        <input type="hidden" id="serviceId">
+                        <div class="mb-3">
+                            <label class="form-label">Nome do Serviço</label>
+                            <input type="text" class="form-control" id="serviceName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <textarea class="form-control" id="serviceDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Duração (minutos)</label>
+                                <input type="number" class="form-control" id="serviceDuration" min="15" step="15" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Preço (R$)</label>
+                                <input type="number" class="form-control" id="servicePrice" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="serviceActive">
+                                <label class="form-check-label">Ativo</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Salvar Serviço</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barber Modal (Admin) -->
+    <div class="modal fade" id="barberModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Gerenciar Barbeiro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="barberForm">
+                        <input type="hidden" id="barberId">
+                        <div class="mb-3">
+                            <label class="form-label">Nome do Barbeiro</label>
+                            <input type="text" class="form-control" id="barberName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Especialidades</label>
+                            <input type="text" class="form-control" id="barberSpecialties" 
+                                   placeholder="Corte, Barba, Pezinho...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Experiência (anos)</label>
+                            <input type="number" class="form-control" id="barberExperience" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Avaliação</label>
+                            <select class="form-select" id="barberRating">
+                                <option value="5">★★★★★ - Excelente</option>
+                                <option value="4">★★★★☆ - Muito Bom</option>
+                                <option value="3">★★★☆☆ - Bom</option>
+                                <option value="2">★★☆☆☆ - Regular</option>
+                                <option value="1">★☆☆☆☆ - Ruim</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="barberActive">
+                                <label class="form-check-label">Ativo</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Salvar Barbeiro</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Details Modal -->
+    <div class="modal fade" id="appointmentDetailsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalhes do Agendamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="appointmentDetailsContent">
+                    <!-- Details loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal fade" id="paymentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pagamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="paymentContent">
+                        <!-- Payment options loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt-br.js"></script>
+    
+    <!-- Main Application Logic -->
+    <script>
+        // ==================== FUNÇÕES PRINCIPAIS ====================
+        
+        // 1. AUTENTICAÇÃO E USUÁRIO
+        function showLoginModal() {
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+            modal.show();
+        }
+        
+        function showRegisterModal() {
+            const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            loginModal.hide();
+            
+            const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+            registerModal.show();
+        }
+        
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                if (typeof auth !== 'undefined') {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                    modal.hide();
+                    showAlert('Login realizado com sucesso!', 'success');
+                } else {
+                    // Simulação offline
+                    if (email === 'admin@barbearia.com' && password === 'admin123') {
+                        currentUser = { email, displayName: 'Administrador' };
+                        isAdmin = true;
+                        updateUIForUser(currentUser, true);
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                        modal.hide();
+                        showAlert('Login realizado com sucesso!', 'success');
+                    } else {
+                        showAlert('Email ou senha incorretos', 'error');
+                    }
+                }
+            } catch (error) {
+                showAlert('Erro no login: ' + error.message, 'error');
+            }
+        }
+        
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showAlert('As senhas não coincidem!', 'error');
+                return;
+            }
+            
+            try {
+                if (typeof auth !== 'undefined') {
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    await userCredential.user.updateProfile({ displayName: name });
+                    
+                    // Salvar dados adicionais no Firestore
+                    await db.collection('users').doc(userCredential.user.uid).set({
+                        name,
+                        email,
+                        phone,
+                        isAdmin: false,
+                        createdAt: new Date()
+                    });
+                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                    modal.hide();
+                    showAlert('Conta criada com sucesso!', 'success');
+                } else {
+                    // Simulação offline
+                    currentUser = { email, displayName: name };
+                    isAdmin = false;
+                    updateUIForUser(currentUser, false);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                    modal.hide();
+                    showAlert('Conta criada com sucesso!', 'success');
+                }
+            } catch (error) {
+                showAlert('Erro no cadastro: ' + error.message, 'error');
+            }
+        }
+        
+        async function logout() {
+            try {
+                if (typeof auth !== 'undefined') {
+                    await auth.signOut();
+                } else {
+                    currentUser = null;
+                    isAdmin = false;
+                    updateUIForUser(null, false);
+                }
+                showAlert('Logout realizado com sucesso!', 'success');
+            } catch (error) {
+                showAlert('Erro ao fazer logout: ' + error.message, 'error');
+            }
+        }
+        
+        // 2. CARREGAMENTO DE DADOS
+        async function loadSystemSettings() {
+            // Tenta carregar do localStorage primeiro
+            const savedSettings = localStorage.getItem('barbearia_settings');
+            if (savedSettings) {
+                SYSTEM_SETTINGS = JSON.parse(savedSettings);
+            }
+            
+            // Tenta carregar do Firestore
+            if (typeof db !== 'undefined') {
+                try {
+                    const settingsDoc = await db.collection('settings').doc('system').get();
+                    if (settingsDoc.exists) {
+                        SYSTEM_SETTINGS = settingsDoc.data();
+                        localStorage.setItem('barbearia_settings', JSON.stringify(SYSTEM_SETTINGS));
+                    }
+                } catch (error) {
+                    console.log('Usando configurações locais:', error);
+                }
+            }
+            
+            // Carregar serviços e barbeiros
+            loadServices();
+            loadBarbers();
+        }
+        
+        async function loadServices() {
+            // Tenta carregar do localStorage
+            const savedServices = localStorage.getItem('barbearia_services');
+            if (savedServices) {
+                services = JSON.parse(savedServices);
+            }
+            
+            // Tenta carregar do Firestore
+            if (typeof db !== 'undefined') {
+                try {
+                    const snapshot = await db.collection('services')
+                        .where('active', '==', true)
+                        .get();
+                    
+                    services = [];
+                    snapshot.forEach(doc => {
+                        services.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    localStorage.setItem('barbearia_services', JSON.stringify(services));
+                } catch (error) {
+                    console.log('Usando serviços locais:', error);
+                }
+            }
+            
+            // Se não há serviços, cria alguns padrões
+            if (services.length === 0) {
+                services = [
+                    {
+                        id: '1',
+                        name: 'Corte de Cabelo',
+                        description: 'Corte moderno com técnicas atualizadas',
+                        duration: 30,
+                        price: 35.00,
+                        active: true
+                    },
+                    {
+                        id: '2',
+                        name: 'Barba',
+                        description: 'Aparo e modelagem completa da barba',
+                        duration: 20,
+                        price: 25.00,
+                        active: true
+                    },
+                    {
+                        id: '3',
+                        name: 'Corte + Barba',
+                        description: 'Combo completo de corte e barba',
+                        duration: 50,
+                        price: 50.00,
+                        active: true
+                    },
+                    {
+                        id: '4',
+                        name: 'Pezinho',
+                        description: 'Aparo da nuca e laterais',
+                        duration: 15,
+                        price: 15.00,
+                        active: true
+                    }
+                ];
+                localStorage.setItem('barbearia_services', JSON.stringify(services));
+            }
+            
+            displayServices();
+        }
+        
+        async function loadBarbers() {
+            // Tenta carregar do localStorage
+            const savedBarbers = localStorage.getItem('barbearia_barbers');
+            if (savedBarbers) {
+                barbers = JSON.parse(savedBarbers);
+            }
+            
+            // Tenta carregar do Firestore
+            if (typeof db !== 'undefined') {
+                try {
+                    const snapshot = await db.collection('barbers')
+                        .where('active', '==', true)
+                        .get();
+                    
+                    barbers = [];
+                    snapshot.forEach(doc => {
+                        barbers.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    localStorage.setItem('barbearia_barbers', JSON.stringify(barbers));
+                } catch (error) {
+                    console.log('Usando barbeiros locais:', error);
+                }
+            }
+            
+            // Se não há barbeiros, cria alguns padrões
+            if (barbers.length === 0) {
+                barbers = [
+                    {
+                        id: '1',
+                        name: 'João Silva',
+                        specialties: 'Corte, Barba, Degradê',
+                        experience: 5,
+                        rating: 5,
+                        active: true
+                    },
+                    {
+                        id: '2',
+                        name: 'Carlos Santos',
+                        specialties: 'Corte Social, Navalhado',
+                        experience: 8,
+                        rating: 5,
+                        active: true
+                    },
+                    {
+                        id: '3',
+                        name: 'Miguel Oliveira',
+                        specialties: 'Corte Moderno, Design de Barba',
+                        experience: 3,
+                        rating: 4,
+                        active: true
+                    }
+                ];
+                localStorage.setItem('barbearia_barbers', JSON.stringify(barbers));
+            }
+            
+            displayBarbers();
+        }
+        
+        // 3. DISPLAY FUNCTIONS
+        function displayServices() {
+            // Services Preview na Home
+            const previewContainer = document.getElementById('servicesPreview');
+            const listContainer = document.getElementById('servicesList');
+            const adminContainer = document.getElementById('adminServicesList');
+            
+            if (previewContainer) {
+                previewContainer.innerHTML = services.slice(0, 4).map(service => `
+                    <div class="col-md-3 mb-3">
+                        <div class="card service-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">${service.name}</h5>
+                                <p class="card-text text-muted">${service.description}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-primary">${service.duration} min</span>
+                                    <h5 class="mb-0 text-success">R$ ${service.price.toFixed(2)}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            if (listContainer) {
+                listContainer.innerHTML = services.map(service => `
+                    <div class="col-md-6 mb-3">
+                        <div class="card service-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">${service.name}</h5>
+                                <p class="card-text text-muted">${service.description}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-primary">${service.duration} min</span>
+                                    <h5 class="mb-0 text-success">R$ ${service.price.toFixed(2)}</h5>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary mt-3" 
+                                        onclick="selectServiceForAppointment('${service.id}')">
+                                    <i class="fas fa-calendar-plus"></i> Agendar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            if (adminContainer) {
+                adminContainer.innerHTML = services.map(service => `
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">${service.name}</h5>
+                                <p class="card-text">${service.description}</p>
+                                <p><strong>Duração:</strong> ${service.duration} min</p>
+                                <p><strong>Preço:</strong> R$ ${service.price.toFixed(2)}</p>
+                                <p><strong>Status:</strong> 
+                                    <span class="badge ${service.active ? 'bg-success' : 'bg-danger'}">
+                                        ${service.active ? 'Ativo' : 'Inativo'}
+                                    </span>
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-primary" 
+                                            onclick="editService('${service.id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" 
+                                            onclick="deleteService('${service.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Atualizar selects de serviços
+            const serviceSelect = document.getElementById('serviceSelect');
+            if (serviceSelect) {
+                serviceSelect.innerHTML = '<option value="">Selecione um serviço</option>' +
+                    services.filter(s => s.active).map(service => 
+                        `<option value="${service.id}">${service.name} - R$ ${service.price.toFixed(2)} (${service.duration}min)</option>`
+                    ).join('');
+            }
+        }
+        
+        function displayBarbers() {
+            // Barbers Preview na Home
+            const previewContainer = document.getElementById('barbersPreview');
+            const adminContainer = document.getElementById('adminBarbersList');
+            
+            if (previewContainer) {
+                previewContainer.innerHTML = barbers.slice(0, 4).map(barber => `
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-user-circle fa-3x text-muted"></i>
+                                </div>
+                                <h5 class="card-title">${barber.name}</h5>
+                                <p class="card-text text-muted">${barber.specialties}</p>
+                                <div class="text-warning mb-2">
+                                    ${'★'.repeat(barber.rating)}${'☆'.repeat(5 - barber.rating)}
+                                </div>
+                                <span class="badge bg-info">${barber.experience} anos de experiência</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            if (adminContainer) {
+                adminContainer.innerHTML = barbers.map(barber => `
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">${barber.name}</h5>
+                                <p><strong>Especialidades:</strong> ${barber.specialties}</p>
+                                <p><strong>Experiência:</strong> ${barber.experience} anos</p>
+                                <p><strong>Avaliação:</strong> ${barber.rating}/5</p>
+                                <p><strong>Status:</strong> 
+                                    <span class="badge ${barber.active ? 'bg-success' : 'bg-danger'}">
+                                        ${barber.active ? 'Ativo' : 'Inativo'}
+                                    </span>
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-primary" 
+                                            onclick="editBarber('${barber.id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" 
+                                            onclick="deleteBarber('${barber.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Atualizar selects de barbeiros
+            const barberSelect = document.getElementById('barberSelect');
+            if (barberSelect) {
+                barberSelect.innerHTML = '<option value="">Selecione um barbeiro</option>' +
+                    barbers.filter(b => b.active).map(barber => 
+                        `<option value="${barber.id}">${barber.name} (${barber.specialties})</option>`
+                    ).join('');
+            }
+        }
+        
+        function displayMyAppointments() {
+            const container = document.getElementById('appointmentsList');
+            if (!container) return;
+            
+            if (appointments.length === 0) {
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h5>Nenhum agendamento encontrado</h5>
+                            <p class="text-muted">Você ainda não fez nenhum agendamento.</p>
+                            <button class="btn btn-primary" onclick="showView('schedule')">
+                                <i class="fas fa-calendar-plus"></i> Fazer Agendamento
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = appointments.map(appointment => {
+                const service = services.find(s => s.id === appointment.serviceId) || {};
+                const barber = barbers.find(b => b.id === appointment.barberId) || {};
+                const date = new Date(appointment.date);
+                
+                const statusBadge = {
+                    'confirmed': '<span class="status-badge status-confirmed">Confirmado</span>',
+                    'pending': '<span class="status-badge status-pending">Pendente</span>',
+                    'cancelled': '<span class="status-badge status-cancelled">Cancelado</span>',
+                    'completed': '<span class="status-badge status-completed">Concluído</span>'
+                }[appointment.status] || '<span class="badge bg-secondary">Desconhecido</span>';
+                
+                return `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="card-title">${service.name || 'Serviço não encontrado'}</h5>
+                                    <p class="card-text">
+                                        <i class="fas fa-user"></i> ${barber.name || 'Barbeiro não especificado'}<br>
+                                        <i class="fas fa-calendar"></i> ${date.toLocaleDateString('pt-BR')}<br>
+                                        <i class="fas fa-clock"></i> ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                    ${appointment.paymentStatus === 'paid' ? 
+                                        '<span class="badge bg-success"><i class="fas fa-check"></i> Pago</span>' : 
+                                        '<span class="badge bg-warning"><i class="fas fa-clock"></i> Pagamento Pendente</span>'}
+                                </div>
+                                <div>
+                                    ${statusBadge}
+                                    <div class="mt-2">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewAppointmentDetails('${appointment.id}')">
+                                            <i class="fas fa-eye"></i> Detalhes
+                                        </button>
+                                        ${appointment.status === 'pending' ? `
+                                            <button class="btn btn-sm btn-outline-danger" onclick="cancelAppointment('${appointment.id}')">
+                                                <i class="fas fa-times"></i> Cancelar
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 4. AGENDAMENTO
+        function initializeCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return;
+            
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                locale: 'pt-br',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: appointments.map(appointment => {
+                    const service = services.find(s => s.id === appointment.serviceId);
+                    return {
+                        title: service ? service.name : 'Agendamento',
+                        start: appointment.date,
+                        backgroundColor: appointment.status === 'confirmed' ? '#28a745' : 
+                                      appointment.status === 'pending' ? '#ffc107' : 
+                                      appointment.status === 'cancelled' ? '#dc3545' : '#17a2b8'
+                    };
+                }),
+                dateClick: function(info) {
+                    const selectedDate = new Date(info.dateStr);
+                    document.getElementById('appointmentDateTime').value = selectedDate.toISOString().slice(0, 16);
+                }
+            });
+            
+            calendar.render();
+        }
+        
+        async function handleAppointment(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showAlert('Por favor, faça login para agendar', 'error');
+                showLoginModal();
+                return;
+            }
+            
+            const serviceId = document.getElementById('serviceSelect').value;
+            const barberId = document.getElementById('barberSelect').value;
+            const dateTime = document.getElementById('appointmentDateTime').value;
+            const notes = document.getElementById('appointmentNotes').value;
+            
+            if (!serviceId || !barberId || !dateTime) {
+                showAlert('Por favor, preencha todos os campos obrigatórios', 'error');
+                return;
+            }
+            
+            const service = services.find(s => s.id === serviceId);
+            const barber = barbers.find(b => b.id === barberId);
+            
+            const appointment = {
+                userId: currentUser.uid || 'local-user',
+                userName: currentUser.displayName || currentUser.email,
+                serviceId,
+                serviceName: service.name,
+                barberId,
+                barberName: barber.name,
+                date: dateTime,
+                notes,
+                status: 'pending',
+                paymentStatus: 'pending',
+                amount: service.price,
+                createdAt: new Date().toISOString()
+            };
+            
+            try {
+                let appointmentId;
+                
+                if (typeof db !== 'undefined') {
+                    const docRef = await db.collection('appointments').add(appointment);
+                    appointmentId = docRef.id;
+                } else {
+                    appointmentId = 'appt-' + Date.now();
+                    appointment.id = appointmentId;
+                    appointments.push(appointment);
+                    localStorage.setItem('barbearia_appointments', JSON.stringify(appointments));
+                }
+                
+                // Adicionar ao array local
+                appointments.push({ id: appointmentId, ...appointment });
+                
+                showAlert('Agendamento realizado com sucesso!', 'success');
+                showPaymentModal(service.price, appointmentId);
+                
+                // Reset form
+                document.getElementById('appointmentForm').reset();
+                initializeCalendar();
+                
+            } catch (error) {
+                showAlert('Erro ao criar agendamento: ' + error.message, 'error');
+            }
+        }
+        
+        // 5. PAGAMENTO
+        function showPaymentModal(amount, appointmentId) {
+            const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+            
+            document.getElementById('paymentContent').innerHTML = `
+                <h6>Valor a pagar: <strong>R$ ${amount.toFixed(2)}</strong></h6>
+                <p class="text-muted mb-4">Selecione o método de pagamento:</p>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="card text-center p-3" onclick="processPayment('credit_card', '${appointmentId}', ${amount})" 
+                             style="cursor: pointer; border: 2px solid #0d6efd;">
+                            <i class="fas fa-credit-card fa-2x mb-2 text-primary"></i>
+                            <p class="mb-0">Cartão de Crédito</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-center p-3" onclick="processPayment('pix', '${appointmentId}', ${amount})"
+                             style="cursor: pointer;">
+                            <i class="fas fa-qrcode fa-2x mb-2 text-success"></i>
+                            <p class="mb-0">PIX</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> O pagamento via Mercado Pago será processado em um ambiente seguro.
+                </div>
+            `;
+            
+            modal.show();
+        }
+        
+        async function processPayment(method, appointmentId, amount) {
+            try {
+                showAlert('Processando pagamento...', 'info');
+                
+                // Aqui você integraria com a API do Mercado Pago
+                // Por enquanto, simulamos o pagamento
+                
+                setTimeout(async () => {
+                    // Atualizar status do pagamento
+                    const appointmentIndex = appointments.findIndex(a => a.id === appointmentId);
+                    if (appointmentIndex !== -1) {
+                        appointments[appointmentIndex].paymentStatus = 'paid';
+                        appointments[appointmentIndex].status = 'confirmed';
+                        appointments[appointmentIndex].paymentMethod = method;
+                        
+                        // Salvar no Firestore se disponível
+                        if (typeof db !== 'undefined') {
+                            await db.collection('appointments').doc(appointmentId).update({
+                                paymentStatus: 'paid',
+                                status: 'confirmed',
+                                paymentMethod: method,
+                                paidAt: new Date().toISOString()
+                            });
+                        } else {
+                            localStorage.setItem('barbearia_appointments', JSON.stringify(appointments));
+                        }
+                        
+                        // Registrar transação
+                        const transaction = {
+                            id: 'trans-' + Date.now(),
+                            appointmentId,
+                            amount,
+                            method,
+                            status: 'completed',
+                            date: new Date().toISOString()
+                        };
+                        
+                        payments.push(transaction);
+                        localStorage.setItem('barbearia_payments', JSON.stringify(payments));
+                        
+                        showAlert('Pagamento processado com sucesso!', 'success');
+                        
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+                        modal.hide();
+                        
+                        // Atualizar views
+                        if (currentView === 'myAppointments') {
+                            displayMyAppointments();
+                        }
+                        
+                        // Enviar confirmação por email (simulado)
+                        sendConfirmationEmail(appointments[appointmentIndex]);
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                showAlert('Erro no processamento do pagamento: ' + error.message, 'error');
+            }
+        }
+        
+        // 6. ADMINISTRAÇÃO
+        function checkAdminAccess() {
+            if (isAdmin) {
+                showAdminDashboard();
+            } else {
+                document.getElementById('adminLoginPrompt').style.display = 'block';
+                document.getElementById('adminDashboard').style.display = 'none';
+            }
+        }
+        
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === 'admin123') {
+                isAdmin = true;
+                showAdminDashboard();
+                showAlert('Acesso administrativo concedido!', 'success');
+            } else {
+                showAlert('Senha incorreta!', 'error');
+            }
+        }
+        
+        function showAdminDashboard() {
+            document.getElementById('adminLoginPrompt').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            
+            // Carregar dados administrativos
+            loadAdminData();
+        }
+        
+        async function loadAdminData() {
+            // Carregar dados do admin
+            loadAllAppointments();
+            loadFinances();
+            updateAdminStats();
+            
+            // Inicializar gráficos
+            initializeCharts();
+        }
+        
+        function loadAllAppointments() {
+            const tableBody = document.getElementById('adminAppointmentsTable');
+            if (!tableBody) return;
+            
+            // Em produção, carregaria do Firestore
+            tableBody.innerHTML = appointments.map(appointment => {
+                const service = services.find(s => s.id === appointment.serviceId) || {};
+                const barber = barbers.find(b => b.id === appointment.barberId) || {};
+                const date = new Date(appointment.date);
+                
+                return `
+                    <tr>
+                        <td>${appointment.id.substring(0, 8)}...</td>
+                        <td>${appointment.userName}</td>
+                        <td>${service.name || 'N/A'}</td>
+                        <td>${barber.name || 'N/A'}</td>
+                        <td>${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
+                        <td>
+                            <select class="form-select form-select-sm" onchange="updateAppointmentStatus('${appointment.id}', this.value)">
+                                <option value="pending" ${appointment.status === 'pending' ? 'selected' : ''}>Pendente</option>
+                                <option value="confirmed" ${appointment.status === 'confirmed' ? 'selected' : ''}>Confirmado</option>
+                                <option value="completed" ${appointment.status === 'completed' ? 'selected' : ''}>Concluído</option>
+                                <option value="cancelled" ${appointment.status === 'cancelled' ? 'selected' : ''}>Cancelado</option>
+                            </select>
+                        </td>
+                        <td>R$ ${appointment.amount ? appointment.amount.toFixed(2) : '0.00'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewAppointmentDetails('${appointment.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function updateAdminStats() {
+            // Estatísticas do dia
+            const today = new Date().toISOString().split('T')[0];
+            const todayAppointments = appointments.filter(a => 
+                a.date.startsWith(today) && a.status !== 'cancelled'
+            ).length;
+            
+            // Receita total
+            const totalRevenue = appointments
+                .filter(a => a.paymentStatus === 'paid')
+                .reduce((sum, a) => sum + (a.amount || 0), 0);
+            
+            // Clientes únicos
+            const uniqueCustomers = [...new Set(appointments.map(a => a.userId))].length;
+            
+            // Taxa de conclusão
+            const completed = appointments.filter(a => a.status === 'completed').length;
+            const total = appointments.filter(a => a.status !== 'cancelled').length;
+            const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            // Atualizar UI
+            document.getElementById('adminTotalRevenue').textContent = `R$ ${totalRevenue.toFixed(2)}`;
+            document.getElementById('adminTodayAppointments').textContent = todayAppointments;
+            document.getElementById('adminActiveCustomers').textContent = uniqueCustomers;
+            document.getElementById('adminCompletionRate').textContent = `${completionRate}%`;
+            
+            // Atualizar home stats
+            document.getElementById('statsToday').textContent = todayAppointments;
+            document.getElementById('statsBarbers').textContent = barbers.filter(b => b.active).length;
+            document.getElementById('statsRating').textContent = '5.0';
+        }
+        
+        function initializeCharts() {
+            // Gráfico de receita (simulado)
+            const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
+            if (revenueCtx) {
+                new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                        datasets: [{
+                            label: 'Receita (R$)',
+                            data: [3500, 4200, 3800, 4500, 5200, 4800],
+                            borderColor: '#0d6efd',
+                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+            
+            // Gráfico de status de agendamentos
+            const appointmentsCtx = document.getElementById('appointmentsChart')?.getContext('2d');
+            if (appointmentsCtx) {
+                const statusCounts = {
+                    confirmed: appointments.filter(a => a.status === 'confirmed').length,
+                    pending: appointments.filter(a => a.status === 'pending').length,
+                    completed: appointments.filter(a => a.status === 'completed').length,
+                    cancelled: appointments.filter(a => a.status === 'cancelled').length
+                };
+                
+                new Chart(appointmentsCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Confirmados', 'Pendentes', 'Concluídos', 'Cancelados'],
+                        datasets: [{
+                            data: Object.values(statusCounts),
+                            backgroundColor: ['#28a745', '#ffc107', '#17a2b8', '#dc3545']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // 7. CHAT AI
+        function initializeChat() {
+            // Carregar histórico do chat
+            const savedChat = localStorage.getItem('barbearia_chat');
+            if (savedChat) {
+                chatHistory = JSON.parse(savedChat);
+                displayChatHistory();
+            }
+        }
+        
+        async function handleChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Adicionar mensagem do usuário
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Simular processamento
+            setTimeout(() => {
+                const response = generateAIResponse(message);
+                addChatMessage(response, 'ai');
+            }, 1000);
+        }
+        
+        function generateAIResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Respostas pré-programadas
+            if (lowerMessage.includes('olá') || lowerMessage.includes('oi')) {
+                return "Olá! Sou o assistente virtual da Barbearia Pro. Como posso ajudar você hoje?";
+            }
+            
+            if (lowerMessage.includes('horário') || lowerMessage.includes('funciona')) {
+                const hours = SYSTEM_SETTINGS.businessHours;
+                return `Nossos horários são:\n${Object.entries(hours).map(([day, time]) => 
+                    `${day}: ${time.open} - ${time.close}`
+                ).join('\n')}`;
+            }
+            
+            if (lowerMessage.includes('serviço') || lowerMessage.includes('preço')) {
+                return `Oferecemos os seguintes serviços:\n${services.map(s => 
+                    `${s.name}: R$ ${s.price.toFixed(2)} (${s.duration} minutos)`
+                ).join('\n')}\n\nPosso ajudar com agendamento ou mais informações!`;
+            }
+            
+            if (lowerMessage.includes('agendar') || lowerMessage.includes('marcar')) {
+                return "Para agendar, vá na seção 'Agendar' e selecione o serviço, barbeiro e horário desejado. Você também pode ver nossa disponibilidade no calendário!";
+            }
+            
+            if (lowerMessage.includes('barbeiro') || lowerMessage.includes('especialista')) {
+                return `Nossos barbeiros são:\n${barbers.map(b => 
+                    `${b.name}: ${b.specialties} (${b.experience} anos de experiência)`
+                ).join('\n')}`;
+            }
+            
+            if (lowerMessage.includes('pagamento') || lowerMessage.includes('pagar')) {
+                return "Aceitamos PIX, cartão de crédito e boleto. O pagamento é processado de forma segura através do Mercado Pago.";
+            }
+            
+            if (lowerMessage.includes('cancelar') || lowerMessage.includes('desmarcar')) {
+                return "Para cancelar um agendamento, vá em 'Meus Agendamentos', encontre o agendamento desejado e clique em 'Cancelar'. Lembre-se que cancelamentos com menos de 2 horas de antecedência podem estar sujeitos a taxas.";
+            }
+            
+            if (lowerMessage.includes('endereço') || lowerMessage.includes('local')) {
+                return `Estamos localizados em:\n${SYSTEM_SETTINGS.businessAddress}\n\n${SYSTEM_SETTINGS.businessPhone}\n${SYSTEM_SETTINGS.businessEmail}`;
+            }
+            
+            // Resposta padrão
+            return "Entendi sua pergunta! Posso ajudar com informações sobre serviços, horários, agendamentos, preços, barbeiros, pagamentos ou localização. Sobre qual assunto você gostaria de saber mais?";
+        }
+        
+        function addChatMessage(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.innerHTML = `<strong>${sender === 'user' ? 'Você' : '<i class="fas fa-robot"></i> Assistente'}:</strong> ${message}`;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Salvar no histórico
+            chatHistory.push({ message, sender, timestamp: new Date().toISOString() });
+            localStorage.setItem('barbearia_chat', JSON.stringify(chatHistory));
+        }
+        
+        function displayChatHistory() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+            
+            chatHistory.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${msg.sender}-message`;
+                messageDiv.innerHTML = `<strong>${msg.sender === 'user' ? 'Você' : '<i class="fas fa-robot"></i> Assistente'}:</strong> ${msg.message}`;
+                chatMessages.appendChild(messageDiv);
+            });
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // 8. FUNÇÕES AUXILIARES
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show`;
+            alertDiv.role = 'alert';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.container-fluid');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+        
+        function selectServiceForAppointment(serviceId) {
+            showView('schedule');
+            document.getElementById('serviceSelect').value = serviceId;
+        }
+        
+        function viewAppointmentDetails(appointmentId) {
+            const appointment = appointments.find(a => a.id === appointmentId);
+            if (!appointment) return;
+            
+            const service = services.find(s => s.id === appointment.serviceId) || {};
+            const barber = barbers.find(b => b.id === appointment.barberId) || {};
+            const date = new Date(appointment.date);
+            
+            document.getElementById('appointmentDetailsContent').innerHTML = `
+                <h6>Detalhes do Agendamento</h6>
+                <p><strong>ID:</strong> ${appointment.id}</p>
+                <p><strong>Serviço:</strong> ${service.name || 'N/A'}</p>
+                <p><strong>Barbeiro:</strong> ${barber.name || 'N/A'}</p>
+                <p><strong>Data:</strong> ${date.toLocaleDateString('pt-BR')}</p>
+                <p><strong>Hora:</strong> ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                <p><strong>Status:</strong> 
+                    <span class="badge ${appointment.status === 'confirmed' ? 'bg-success' : 
+                                     appointment.status === 'pending' ? 'bg-warning' : 
+                                     appointment.status === 'cancelled' ? 'bg-danger' : 'bg-info'}">
+                        ${appointment.status}
+                    </span>
+                </p>
+                <p><strong>Pagamento:</strong> 
+                    <span class="badge ${appointment.paymentStatus === 'paid' ? 'bg-success' : 'bg-warning'}">
+                        ${appointment.paymentStatus === 'paid' ? 'Pago' : 'Pendente'}
+                    </span>
+                </p>
+                ${appointment.paymentMethod ? `<p><strong>Método:</strong> ${appointment.paymentMethod}</p>` : ''}
+                ${appointment.notes ? `<p><strong>Observações:</strong> ${appointment.notes}</p>` : ''}
+                <p><strong>Valor:</strong> R$ ${appointment.amount ? appointment.amount.toFixed(2) : '0.00'}</p>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('appointmentDetailsModal'));
+            modal.show();
+        }
+        
+        function cancelAppointment(appointmentId) {
+            if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
+                const appointmentIndex = appointments.findIndex(a => a.id === appointmentId);
+                if (appointmentIndex !== -1) {
+                    appointments[appointmentIndex].status = 'cancelled';
+                    
+                    if (typeof db !== 'undefined') {
+                        db.collection('appointments').doc(appointmentId).update({ status: 'cancelled' });
+                    } else {
+                        localStorage.setItem('barbearia_appointments', JSON.stringify(appointments));
+                    }
+                    
+                    showAlert('Agendamento cancelado com sucesso!', 'success');
+                    displayMyAppointments();
+                }
+            }
+        }
+        
+        function updateAppointmentStatus(appointmentId, newStatus) {
+            const appointmentIndex = appointments.findIndex(a => a.id === appointmentId);
+            if (appointmentIndex !== -1) {
+                appointments[appointmentIndex].status = newStatus;
+                
+                if (typeof db !== 'undefined') {
+                    db.collection('appointments').doc(appointmentId).update({ status: newStatus });
+                } else {
+                    localStorage.setItem('barbearia_appointments', JSON.stringify(appointments));
+                }
+                
+                showAlert('Status atualizado com sucesso!', 'success');
+                loadAllAppointments();
+                updateAdminStats();
+            }
+        }
+        
+        // 9. GESTÃO DE SERVIÇOS E BARBEIROS
+        function showServiceModal(serviceId = null) {
+            const form = document.getElementById('serviceForm');
+            form.reset();
+            
+            if (serviceId) {
+                const service = services.find(s => s.id === serviceId);
+                if (service) {
+                    document.getElementById('serviceId').value = service.id;
+                    document.getElementById('serviceName').value = service.name;
+                    document.getElementById('serviceDescription').value = service.description;
+                    document.getElementById('serviceDuration').value = service.duration;
+                    document.getElementById('servicePrice').value = service.price;
+                    document.getElementById('serviceActive').checked = service.active;
+                }
+            } else {
+                document.getElementById('serviceId').value = '';
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
+            modal.show();
+        }
+        
+        function editService(serviceId) {
+            showServiceModal(serviceId);
+        }
+        
+        async function deleteService(serviceId) {
+            if (confirm('Tem certeza que deseja excluir este serviço?')) {
+                const serviceIndex = services.findIndex(s => s.id === serviceId);
+                if (serviceIndex !== -1) {
+                    services[serviceIndex].active = false;
+                    
+                    if (typeof db !== 'undefined') {
+                        await db.collection('services').doc(serviceId).update({ active: false });
+                    } else {
+                        localStorage.setItem('barbearia_services', JSON.stringify(services));
+                    }
+                    
+                    showAlert('Serviço desativado com sucesso!', 'success');
+                    displayServices();
+                }
+            }
+        }
+        
+        document.getElementById('serviceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const serviceId = document.getElementById('serviceId').value;
+            const service = {
+                name: document.getElementById('serviceName').value,
+                description: document.getElementById('serviceDescription').value,
+                duration: parseInt(document.getElementById('serviceDuration').value),
+                price: parseFloat(document.getElementById('servicePrice').value),
+                active: document.getElementById('serviceActive').checked
+            };
+            
+            try {
+                if (serviceId) {
+                    // Atualizar serviço existente
+                    const serviceIndex = services.findIndex(s => s.id === serviceId);
+                    if (serviceIndex !== -1) {
+                        services[serviceIndex] = { ...services[serviceIndex], ...service };
+                        
+                        if (typeof db !== 'undefined') {
+                            await db.collection('services').doc(serviceId).update(service);
+                        }
+                    }
+                } else {
+                    // Criar novo serviço
+                    const newId = 'service-' + Date.now();
+                    service.id = newId;
+                    services.push(service);
+                    
+                    if (typeof db !== 'undefined') {
+                        await db.collection('services').doc(newId).set(service);
+                    }
+                }
+                
+                localStorage.setItem('barbearia_services', JSON.stringify(services));
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
+                modal.hide();
+                
+                showAlert('Serviço salvo com sucesso!', 'success');
+                displayServices();
+                
+            } catch (error) {
+                showAlert('Erro ao salvar serviço: ' + error.message, 'error');
+            }
+        });
+        
+        // Funções similares para barbeiros...
+        function showBarberModal(barberId = null) {
+            // Similar à showServiceModal
+        }
+        
+        // 10. LOCALSTORAGE
+        function checkLocalStorage() {
+            // Carregar dados do localStorage
+            const savedAppointments = localStorage.getItem('barbearia_appointments');
+            if (savedAppointments) {
+                appointments = JSON.parse(savedAppointments);
+            }
+            
+            const savedPayments = localStorage.getItem('barbearia_payments');
+            if (savedPayments) {
+                payments = JSON.parse(savedPayments);
+            }
+        }
+        
+        // 11. EMAIL DE CONFIRMAÇÃO (simulado)
+        function sendConfirmationEmail(appointment) {
+            console.log('Email de confirmação enviado para:', appointment.userName);
+            console.log('Detalhes do agendamento:', appointment);
+            // Em produção, integrar com SendGrid, AWS SES, etc.
+        }
+        
+        // 12. CARREGAR DADOS DA HOME
+        function loadHomeData() {
+            // Atualizar estatísticas
+            updateAdminStats();
+            
+            // Carregar serviços e barbeiros já são chamados em displayServices/displayBarbers
+        }
+    </script>
+</body>
+</html>
