@@ -1,1 +1,1 @@
-# Banco-digital-br
+Projeto com checkout Stripe real + carrinho.
