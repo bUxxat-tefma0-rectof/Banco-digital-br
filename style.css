@@ -1,0 +1,7 @@
+body { font-family: Arial; margin:0; }
+header { background:#000; color:#fff; padding:15px; display:flex; justify-content:space-between; }
+.banner { height:200px; background:linear-gradient(45deg,#000,#444); color:white; display:flex; align-items:center; justify-content:center; }
+nav button { margin:5px; }
+#produtos { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:10px; padding:10px; }
+.produto { border:1px solid #ccc; padding:10px; }
+.chat { position:fixed; bottom:20px; right:20px; background:black; color:white; padding:15px; border-radius:50%; }
