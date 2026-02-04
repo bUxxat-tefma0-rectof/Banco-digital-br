@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin</title>
+</head>
+<body>
+
+<h2>Login Admin</h2>
+<input type="password" id="senha" placeholder="Senha">
+<button onclick="login()">Entrar</button>
+
+<div id="painel" style="display:none">
+  <h3>Editar Loja</h3>
+
+  <textarea id="sobre" placeholder="Texto sobre a empresa"></textarea>
+  <button onclick="salvarSobre()">Salvar Sobre</button>
+
+  <h3>Adicionar Produto</h3>
+  <input id="nome" placeholder="Nome">
+  <input id="tipo" placeholder="Tipo">
+  <input id="desc" placeholder="Descrição">
+  <button onclick="addProduto()">Adicionar</button>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
