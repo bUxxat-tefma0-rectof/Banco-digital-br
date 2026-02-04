@@ -44,3 +44,16 @@ render(produtos);
 document.getElementById("sobreTexto").innerText =
   localStorage.getItem("sobre") ||
   "Somos uma loja especializada em perfumes de alto padrão.";
+const banners = [
+  "https://images.unsplash.com/photo-1612198264509-6c1f49e3f9a4",
+  "https://images.unsplash.com/photo-1585386959984-a41552231692",
+  "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539"
+];
+
+let bannerIndex = 0;
+const bannerImg = document.getElementById("bannerImg");
+
+setInterval(() => {
+  bannerIndex = (bannerIndex + 1) % banners.length;
+  bannerImg.src = banners[bannerIndex];
+}, 3000);
