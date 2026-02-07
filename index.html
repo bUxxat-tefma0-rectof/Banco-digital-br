@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeautyLux - Cosméticos Premium</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- CABEÇALHO -->
+    <header class="header">
+        <div class="header-top">
+            <div class="container">
+                <p><i class="fas fa-truck"></i> Frete grátis acima de R$ 199</p>
+                <div class="header-links">
+                    <a href="#" onclick="showLoginModal()"><i class="fas fa-user"></i> Minha Conta</a>
+                    <a href="#" onclick="showOrdersModal()"><i class="fas fa-box"></i> Pedidos</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="header-main">
+            <div class="container">
+                <div class="logo">
+                    <h1>BeautyLux</h1>
+                    <p>Beleza Premium</p>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Buscar produtos, marcas..." onkeyup="searchProducts()">
+                    <button><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="cart-icon" onclick="toggleCart()">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="navbar">
+            <div class="container">
+                <ul>
+                    <li><a href="#home" onclick="showSection('home')">Início</a></li>
+                    <li><a href="#produtos" onclick="showSection('produtos')">Produtos</a></li>
+                    <li><a href="#promocoes" onclick="filterByCategory('promocao')">Promoções</a></li>
+                    <li><a href="#lancamentos" onclick="filterByCategory('lancamento')">Lançamentos</a></li>
+                    <li><a href="#contato">Contato</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- SEÇÃO HOME -->
+    <section id="home" class="section active">
+        <!-- CARROSSEL DE BANNERS -->
+        <div class="carousel">
+            <div class="carousel-container" id="carouselContainer">
+                <div class="carousel-slide active">
+                    <img src="https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=1200&h=500&fit=crop" alt="Banner 1">
+                    <div class="carousel-content">
+                        <h2>Novidades da Temporada</h2>
+                        <p>Descubra os melhores produtos para você</p>
+                        <button class="btn-primary" onclick="showSection('produtos')">Comprar Agora</button>
+                    </div>
+                </div>
+                
+                <div class="carousel-slide">
+                    <img src="https://images.unsplash.com/photo-1631214540242-e2c2e1aae133?w=1200&h=500&fit=crop" alt="Banner 2">
+                    <div class="carousel-content">
+                        <h2>Até 50% OFF</h2>
+                        <p>Produtos selecionados em promoção</p>
+                        <button class="btn-primary" onclick="filterByCategory('promocao')">Ver Ofertas</button>
+                    </div>
+                </div>
+                
+                <div class="carousel-slide">
+                    <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1200&h=500&fit=crop" alt="Banner 3">
+                    <div class="carousel-content">
+                        <h2>Frete Grátis</h2>
+                        <p>Em compras acima de R$ 199</p>
+                        <button class="btn-primary" onclick="showSection('produtos')">Aproveitar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="carousel-btn prev" onclick="changeSlide(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-btn next" onclick="changeSlide(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            
+            <div class="carousel-dots" id="carouselDots"></div>
+        </div>
+
+        <!-- PRODUTOS EM DESTAQUE -->
+        <div class="container">
+            <div class="section-header">
+                <h2>Produtos em Destaque</h2>
+                <p>Os queridinhos dos nossos clientes</p>
+            </div>
+            
+            <div class="products-grid" id="featuredProducts"></div>
+        </div>
+
+        <!-- CATEGORIAS -->
+        <div class="categories-section">
+            <div class="container">
+                <h2>Categorias</h2>
+                <div class="categories-grid">
+                    <div class="category-card" onclick="filterByCategory('perfumes')">
+                        <i class="fas fa-spray-can"></i>
+                        <h3>Perfumes</h3>
+                    </div>
+                    <div class="category-card" onclick="filterByCategory('maquiagem')">
+                        <i class="fas fa-palette"></i>
+                        <h3>Maquiagem</h3>
+                    </div>
+                    <div class="category-card" onclick="filterByCategory('skincare')">
+                        <i class="fas fa-hand-sparkles"></i>
+                        <h3>Skincare</h3>
+                    </div>
+                    <div class="category-card" onclick="filterByCategory('corpo')">
+                        <i class="fas fa-pump-soap"></i>
+                        <h3>Corpo & Banho</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROMOÇÕES -->
+        <div class="container">
+            <div class="section-header">
+                <h2>🔥 Super Ofertas</h2>
+                <p>Aproveite enquanto durar o estoque</p>
+            </div>
+            
+            <div class="products-grid" id="promoProducts"></div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO PRODUTOS -->
+    <section id="produtos" class="section">
+        <div class="container">
+            <h1>Todos os Produtos</h1>
+            
+            <!-- FILTROS -->
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label>Categoria:</label>
+                    <select id="filterCategory" onchange="applyFilters()">
+                        <option value="">Todas</option>
+                        <option value="perfumes">Perfumes</option>
+                        <option value="maquiagem">Maquiagem</option>
+                        <option value="skincare">Skincare</option>
+                        <option value="corpo">Corpo & Banho</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Preço:</label>
+                    <select id="filterPrice" onchange="applyFilters()">
+                        <option value="">Todos</option>
+                        <option value="0-50">Até R$ 50</option>
+                        <option value="50-100">R$ 50 - R$ 100</option>
+                        <option value="100-200">R$ 100 - R$ 200</option>
+                        <option value="200-999">Acima de R$ 200</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Ordenar:</label>
+                    <select id="filterSort" onchange="applyFilters()">
+                        <option value="relevance">Mais Relevantes</option>
+                        <option value="price-asc">Menor Preço</option>
+                        <option value="price-desc">Maior Preço</option>
+                        <option value="name">Nome A-Z</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="products-grid" id="allProducts"></div>
+        </div>
+    </section>
+
+    <!-- MODAL PRODUTO -->
+    <div id="productModal" class="modal">
+        <div class="modal-content product-modal-content">
+            <span class="close" onclick="closeProductModal()">&times;</span>
+            <div id="productModalContent"></div>
+        </div>
+    </div>
+
+    <!-- CARRINHO LATERAL -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>Meu Carrinho</h3>
+            <button class="close-cart" onclick="toggleCart()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="cart-items" id="cartItems"></div>
+        
+        <div class="cart-footer">
+            <div class="cart-coupon">
+                <input type="text" id="couponInput" placeholder="Cupom de desconto">
+                <button onclick="applyCoupon()">Aplicar</button>
+            </div>
+            
+            <div class="cart-totals">
+                <div class="total-line">
+                    <span>Subtotal:</span>
+                    <span id="cartSubtotal">R$ 0,00</span>
+                </div>
+                <div class="total-line discount" id="discountLine" style="display: none;">
+                    <span>Desconto:</span>
+                    <span id="cartDiscount">R$ 0,00</span>
+                </div>
+                <div class="total-line">
+                    <span>Frete:</span>
+                    <span id="cartShipping">R$ 0,00</span>
+                </div>
+                <div class="total-line total">
+                    <span>Total:</span>
+                    <span id="cartTotal">R$ 0,00</span>
+                </div>
+            </div>
+            
+            <button class="btn-checkout" onclick="showCheckout()">
+                Finalizar Compra
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL LOGIN -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Login</h2>
+            <form onsubmit="handleLogin(event)">
+                <input type="email" placeholder="E-mail" required>
+                <input type="password" placeholder="Senha" required>
+                <button type="submit" class="btn-primary">Entrar</button>
+                <p class="modal-footer">Não tem conta? <a href="#" onclick="showRegisterModal()">Cadastre-se</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CHECKOUT -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content checkout-modal">
+            <span class="close" onclick="closeCheckoutModal()">&times;</span>
+            <h2>Finalizar Pedido</h2>
+            
+            <div class="checkout-steps" id="checkoutSteps">
+                <!-- PASSO 1: DADOS -->
+                <div class="checkout-step active" data-step="1">
+                    <h3>Dados Pessoais</h3>
+                    <form id="checkoutForm">
+                        <input type="text" id="checkoutName" placeholder="Nome completo" required>
+                        <input type="email" id="checkoutEmail" placeholder="E-mail" required>
+                        <input type="tel" id="checkoutPhone" placeholder="Telefone" required>
+                        <input type="text" id="checkoutCPF" placeholder="CPF" required>
+                        <button type="button" class="btn-primary" onclick="nextCheckoutStep()">Continuar</button>
+                    </form>
+                </div>
+                
+                <!-- PASSO 2: ENDEREÇO -->
+                <div class="checkout-step" data-step="2">
+                    <h3>Endereço de Entrega</h3>
+                    <form id="addressForm">
+                        <input type="text" id="checkoutCEP" placeholder="CEP" onblur="fetchAddress()" required>
+                        <input type="text" id="checkoutStreet" placeholder="Rua" required>
+                        <div class="form-row">
+                            <input type="text" id="checkoutNumber" placeholder="Número" required>
+                            <input type="text" id="checkoutComplement" placeholder="Complemento">
+                        </div>
+                        <input type="text" id="checkoutNeighborhood" placeholder="Bairro" required>
+                        <div class="form-row">
+                            <input type="text" id="checkoutCity" placeholder="Cidade" required>
+                            <input type="text" id="checkoutState" placeholder="Estado" required>
+                        </div>
+                        <button type="button" class="btn-secondary" onclick="prevCheckoutStep()">Voltar</button>
+                        <button type="button" class="btn-primary" onclick="nextCheckoutStep()">Continuar</button>
+                    </form>
+                </div>
+                
+                <!-- PASSO 3: PAGAMENTO -->
+                <div class="checkout-step" data-step="3">
+                    <h3>Forma de Pagamento</h3>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="pix" checked>
+                            <div class="payment-card">
+                                <i class="fas fa-qrcode"></i>
+                                <span>PIX</span>
+                                <small>Aprovação imediata</small>
+                            </div>
+                        </label>
+                        
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="credit">
+                            <div class="payment-card">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Cartão de Crédito</span>
+                                <small>Até 12x sem juros</small>
+                            </div>
+                        </label>
+                        
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="mercadopago">
+                            <div class="payment-card">
+                                <i class="fas fa-money-bill"></i>
+                                <span>Mercado Pago</span>
+                                <small>Várias opções</small>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div id="paymentDetails" class="payment-details"></div>
+                    
+                    <button type="button" class="btn-secondary" onclick="prevCheckoutStep()">Voltar</button>
+                    <button type="button" class="btn-primary" onclick="finishOrder()">Finalizar Pedido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>BeautyLux</h4>
+                    <p>Sua loja de cosméticos premium com os melhores produtos e atendimento.</p>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Atendimento</h4>
+                    <ul>
+                        <li><a href="#">Central de Ajuda</a></li>
+                        <li><a href="#">Política de Troca</a></li>
+                        <li><a href="#">Rastreio de Pedidos</a></li>
+                        <li><a href="#">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Institucional</h4>
+                    <ul>
+                        <li><a href="#">Sobre Nós</a></li>
+                        <li><a href="#">Trabalhe Conosco</a></li>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Privacidade</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Redes Sociais</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 BeautyLux. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="js/data.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
